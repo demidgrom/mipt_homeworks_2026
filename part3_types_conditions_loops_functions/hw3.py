@@ -22,6 +22,8 @@ EXPENSE_CATEGORIES = {
 
 financial_transactions_storage: list[Any] = []
 
+Record = tuple[float, float, dict[str, float]]
+
 # constants
 DAYS_IN_MONTH = (
     31,
@@ -132,7 +134,7 @@ def validate_category(category_str: str) -> tuple[str, str] | None:
 
 
 def format_categories() -> str:
-    return "\n".join(f"{common}::{target}" for common, targets in EXPENSE_CATEGORIES.items() for target in targets)
+    return "\n".join(f"{comm}::{trg}" for comm, trgs in EXPENSE_CATEGORIES.items() for trg in trgs)
 
 
 def convert_date_to_int(date: tuple[int, int, int]) -> int:
@@ -168,7 +170,7 @@ def _calculate_total_capital_until(target_date: tuple[int, int, int]) -> float:
     return total
 
 
-def _process_record_for_month(record: dict[str, Any], year: int, month: int) -> tuple[float, float, dict[str, float]]:
+def _process_record_for_month(record: dict[str, Any], year: int, month: int) -> Record:
     record_date = record.get(KEY_DATE)
     if not record_date:
         return 0, 0, {}
@@ -186,7 +188,7 @@ def _accumulate_categories(categories: dict[str, float], cat_dict: dict[str, flo
         categories[cat] = categories.get(cat, 0) + amt
 
 
-def _get_month_amounts_and_categories(year: int, month: int) -> tuple[float, float, dict[str, float]]:
+def _get_month_amounts_and_categories(year: int, month: int) -> Record:
     total_income: float = 0
     total_expenses: float = 0
     categories: dict[str, float] = {}
