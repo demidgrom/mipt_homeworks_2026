@@ -8,7 +8,7 @@ INCORRECT_DATE_MSG = "Invalid date!"
 NOT_EXISTS_CATEGORY = "Category not exists!"
 OP_SUCCESS_MSG = "Added"
 
-EXP_CATG = {
+EXPENSE_CATEGORIES = {
     "Food": ("Supermarket", "Restaurants", "FastFood", "Coffee", "Delivery"),
     "Transport": ("Taxi", "Public transport", "Gas", "Car service"),
     "Housing": ("Rent", "Utilities", "Repairs", "Furniture"),
@@ -126,15 +126,15 @@ def validate_category(category_str: str) -> tuple[str, str] | None:
     if "::" not in category_str:
         return None
     common, target = category_str.split("::", 1)
-    if common not in EXP_CATG:
+    if common not in EXPENSE_CATEGORIES:
         return None
-    if target not in EXP_CATG[common]:
+    if target not in EXPENSE_CATEGORIES[common]:
         return None
     return (common, target)
 
 
 def format_categories() -> str:
-    return "\n".join(f"{com}::{trg}" for com, tgs in EXP_CATG.items() for trg in tgs)
+    return "\n".join(f"{comm}::{trg}" for comm, trgs in EXPENSE_CATEGORIES.items() for trg in trgs)
 
 
 def convert_date_to_int(date: tuple[int, int, int]) -> int:
