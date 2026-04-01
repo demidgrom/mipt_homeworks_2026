@@ -134,7 +134,7 @@ def validate_category(category_str: str) -> tuple[str, str] | None:
 
 
 def format_categories() -> str:
-    return "\n".join(f"{comm}::{trg}" for comm, trgs in EXPENSE_CATEGORIES.items() for trg in trgs)
+    return "\n".join(f"{com}::{trg}" for com, tgs in EXPENSE_CATEGORIES.items() for trg in tgs)
 
 
 def convert_date_to_int(date: tuple[int, int, int]) -> int:
@@ -202,7 +202,7 @@ def _get_month_amounts_and_categories(year: int, month: int) -> Record:
     return total_income, total_expenses, categories
 
 
-def _calculate_month_income_expenses(target_date: tuple[int, int, int]) -> tuple[float, float, dict[str, float]]:
+def _calculate_month_income_expenses(target_date: tuple[int, int, int]) -> Record:
     return _get_month_amounts_and_categories(target_date[2], target_date[1])
 
 
