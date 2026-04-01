@@ -24,8 +24,18 @@ financial_transactions_storage: list[Any] = []
 
 # constants
 DAYS_IN_MONTH = (
-    31, 28, 31, 30, 31, 30,
-    31, 31, 30, 31, 30, 31,
+    31,
+    28,
+    31,
+    30,
+    31,
+    30,
+    31,
+    31,
+    30,
+    31,
+    30,
+    31,
 )
 MONTHS_IN_YEAR = 12
 DAYS_IN_LEAP_FEBRUARY = 29
@@ -122,11 +132,7 @@ def validate_category(category_str: str) -> tuple[str, str] | None:
 
 
 def format_categories() -> str:
-    return "\n".join(
-        f"{common}::{target}"
-        for common, targets in EXPENSE_CATEGORIES.items()
-        for target in targets
-    )
+    return "\n".join(f"{common}::{target}" for common, targets in EXPENSE_CATEGORIES.items() for target in targets)
 
 
 def convert_date_to_int(date: tuple[int, int, int]) -> int:
@@ -162,9 +168,7 @@ def _calculate_total_capital_until(target_date: tuple[int, int, int]) -> float:
     return total
 
 
-def _process_record_for_month(
-    record: dict[str, Any], year: int, month: int
-) -> tuple[float, float, dict[str, float]]:
+def _process_record_for_month(record: dict[str, Any], year: int, month: int) -> tuple[float, float, dict[str, float]]:
     record_date = record.get(KEY_DATE)
     if not record_date:
         return 0, 0, {}
@@ -177,16 +181,12 @@ def _process_record_for_month(
     return amount, 0, {}
 
 
-def _accumulate_categories(
-    categories: dict[str, float], cat_dict: dict[str, float]
-) -> None:
+def _accumulate_categories(categories: dict[str, float], cat_dict: dict[str, float]) -> None:
     for cat, amt in cat_dict.items():
         categories[cat] = categories.get(cat, 0) + amt
 
 
-def _get_month_amounts_and_categories(
-    year: int, month: int
-) -> tuple[float, float, dict[str, float]]:
+def _get_month_amounts_and_categories(year: int, month: int) -> tuple[float, float, dict[str, float]]:
     total_income: float = 0
     total_expenses: float = 0
     categories: dict[str, float] = {}
@@ -200,9 +200,7 @@ def _get_month_amounts_and_categories(
     return total_income, total_expenses, categories
 
 
-def _calculate_month_income_expenses(
-    target_date: tuple[int, int, int]
-) -> tuple[float, float, dict[str, float]]:
+def _calculate_month_income_expenses(target_date: tuple[int, int, int]) -> tuple[float, float, dict[str, float]]:
     return _get_month_amounts_and_categories(target_date[2], target_date[1])
 
 
@@ -268,9 +266,7 @@ def cost_handler(category_name: str, amount: float, income_date: str) -> str:
     if validate_category(category_name) is None:
         financial_transactions_storage.append(None)
         return NOT_EXISTS_CATEGORY
-    financial_transactions_storage.append(
-        {KEY_CATEGORY: category_name, KEY_AMOUNT: amount, KEY_DATE: date_tuple}
-    )
+    financial_transactions_storage.append({KEY_CATEGORY: category_name, KEY_AMOUNT: amount, KEY_DATE: date_tuple})
     return OP_SUCCESS_MSG
 
 
@@ -283,12 +279,8 @@ def stats_handler(report_date: str) -> str:
     if target_date is None:
         return INCORRECT_DATE_MSG
     total_capital = _calculate_total_capital_until(target_date)
-    month_income, month_expenses, categories = _calculate_month_income_expenses(
-        target_date
-    )
-    return _format_statistics(
-        report_date, total_capital, month_income, month_expenses, categories
-    )
+    month_income, month_expenses, categories = _calculate_month_income_expenses(target_date)
+    return _format_statistics(report_date, total_capital, month_income, month_expenses, categories)
 
 
 def _handle_income_command(command_parts: list[str]) -> None:
