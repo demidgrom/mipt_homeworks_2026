@@ -134,7 +134,10 @@ def validate_category(category_str: str) -> tuple[str, str] | None:
 
 
 def format_categories() -> str:
-    return "\n".join(f"{comm}::{trg}" for comm, trgs in EXPENSE_CATEGORIES.items() for trg in trgs)
+    lines: list[str] = []
+    for comm, trgs in EXPENSE_CATEGORIES.items():
+        lines.extend(f"{comm}::{trg}" for trg in trgs)
+    return "\n".join(lines)
 
 
 def convert_date_to_int(date: tuple[int, int, int]) -> int:
