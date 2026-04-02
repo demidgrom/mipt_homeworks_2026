@@ -86,27 +86,25 @@ class LFUPolicy(AbstractPolicy[K]):
     def register_access(self, key: K) -> None:
         if key in self._key_counter:
             self._key_counter[key] += 1
-        else:
-            self._key_counter[key] = 1
-            self._order.append(key)
+
+            return
+
+        self._key_counter[key] = 1
 
     def get_key_to_evict(self) -> K | None:
         if len(self._key_counter) >= self.capacity:
-            minimal_frequency = min(self._key_counter.values())
-            candidates = [key for key, frequency in self._key_counter.items() if frequency == minimal_frequency]
-            for ordered_key in self._order:
-                if ordered_key in candidates:
-                    return ordered_key
+            if self._order:
+                return self._order[0]
+
+            return None
+
         return None
 
     def remove_key(self, key: K) -> None:
         self._key_counter.pop(key, None)
-        if key in self._order:
-            self._order.remove(key)
 
     def clear(self) -> None:
         self._key_counter.clear()
-        self._order.clear()
 
     @property
     def has_keys(self) -> bool:
