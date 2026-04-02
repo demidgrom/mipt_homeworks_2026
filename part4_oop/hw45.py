@@ -85,7 +85,7 @@ class LFUPolicy(AbstractPolicy[K]):
     def register_access(self, key: K) -> None:
         if key in self._key_counter:
             value = self._key_counter.get(key, 0) + 1
-            self._key_counter[key] = value
+            self._key_counter.update({key: value})
             return
 
         if len(self._key_counter) >= self.capacity:
