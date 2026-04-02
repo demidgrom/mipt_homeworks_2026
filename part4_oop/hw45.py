@@ -84,7 +84,7 @@ class LFUPolicy(AbstractPolicy[K]):
 
     def register_access(self, key: K) -> None:
         if key in self._key_counter:
-            self._key_counter[key] = self._key_counter.get(key, 0) + 1
+            self._key_counter[key] += 1
             return
 
         if len(self._key_counter) >= self.capacity:
@@ -152,12 +152,6 @@ class CachedProperty[V]:
         self._func = func
         self._attr_name: str | None = None
 
-    def _get_attr_name(self, owner: type) -> str | None:
-        for name, attr in owner.__dict__.items():
-            if attr is self:
-                return name
-        return None
-
     def __get__(self, instance: HasCache[str, V] | None, owner: type) -> Any:
         if instance is None:
             return self
@@ -176,3 +170,9 @@ class CachedProperty[V]:
         value = self._func(instance)
         cache.set(key, value)
         return value
+
+    def _get_attr_name(self, owner: type) -> str | None:
+        for name, attr in owner.__dict__.items():
+            if attr is self:
+                return name
+        return None
