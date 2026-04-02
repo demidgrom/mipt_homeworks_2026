@@ -84,7 +84,7 @@ class LFUPolicy(AbstractPolicy[K]):
 
     def register_access(self, key: K) -> None:
         if key in self._key_counter:
-            self._key_counter[key] += 1
+            self._key_counter[key] = self._key_counter.get(key, 0) + 1
             return
 
         if len(self._key_counter) >= self.capacity:
@@ -94,7 +94,8 @@ class LFUPolicy(AbstractPolicy[K]):
 
     def get_key_to_evict(self) -> K | None:
         if len(self._key_counter) >= self.capacity:
-            min_key: K = min(self._key_counter.items(), key=lambda count: count[1])[0]
+            min_item = min(self._key_counter.items(), key=lambda item: item[1])
+            min_key: K = min_item[0]
             return min_key
         return None
 
@@ -151,16 +152,18 @@ class CachedProperty[V]:
         self._func = func
         self._attr_name: str | None = None
 
+    def _get_attr_name(self, owner: type) -> str | None:
+        for name, attr in owner.__dict__.items():
+            if attr is self:
+                return name
+        return None
+
     def __get__(self, instance: HasCache[str, V] | None, owner: type) -> Any:
         if instance is None:
             return self
 
         if self._attr_name is None:
-            for name, attr in owner.__dict__.items():
-                if attr is self:
-                    self._attr_name = name
-                    break
-
+            self._attr_name = self._get_attr_name(owner)
             if self._attr_name is None:
                 return None
 
