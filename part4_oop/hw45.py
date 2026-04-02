@@ -83,11 +83,11 @@ class LFUPolicy(AbstractPolicy[K]):
     _pending_key: K | None = field(default=None, init=False)
 
     def register_access(self, key: K) -> None:
+        self._key_counter[key] = self._key_counter.get(key, 0) + 1
+
         if len(self._key_counter) >= self.capacity:
             self._pending_key = key
             return
-
-        self._key_counter[key] = self._key_counter.get(key, 0) + 1
 
     def get_key_to_evict(self) -> K | None:
         if len(self._key_counter) >= self.capacity:
