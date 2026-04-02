@@ -61,7 +61,7 @@ class AbstractPolicy(Policy[K]):
 
 
 @dataclass
-class FIFOPolicy(AbstractPolicy):
+class FIFOPolicy(AbstractPolicy[K]):
 
     def register_access(self, key: K) -> None:
         if key in self._order:
@@ -71,7 +71,7 @@ class FIFOPolicy(AbstractPolicy):
 
 
 @dataclass
-class LRUPolicy(AbstractPolicy):
+class LRUPolicy(AbstractPolicy[K]):
 
     def register_access(self, key: K) -> None:
         if key in self._order:
@@ -81,7 +81,7 @@ class LRUPolicy(AbstractPolicy):
 
 
 @dataclass
-class LFUPolicy(AbstractPolicy):
+class LFUPolicy(AbstractPolicy[K]):
 
     def register_access(self, key: K) -> None:
         if key in self._key_counter:
