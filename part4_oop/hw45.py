@@ -1,6 +1,6 @@
+from abc import abstractmethod
 from collections.abc import Callable
 from dataclasses import dataclass, field
-from abc import abstractmethod
 from typing import Any, TypeVar, cast
 
 from part4_oop.interfaces import Cache, HasCache, Policy, Storage
@@ -88,6 +88,7 @@ class LFUPolicy(AbstractPolicy[K]):
         if key in self._key_counter:
             self._key_counter[key] += 1
             return
+
         if len(self._key_counter) >= self.capacity:
             self._pending_key = key
             return
@@ -112,6 +113,7 @@ class LFUPolicy(AbstractPolicy[K]):
     @property
     def has_keys(self) -> bool:
         return len(self._key_counter) != 0
+
 
 class MIPTCache(Cache[K, V]):
     def __init__(self, storage: Storage[K, V], policy: Policy[K]) -> None:
@@ -168,7 +170,7 @@ class CachedProperty[V]:
         key = self._attr_name
 
         if cache.exists(key):
-            return cast(V, cache.get(key))
+            return cast("V", cache.get(key))
 
         value = self._func(instance)
         cache.set(key, value)
