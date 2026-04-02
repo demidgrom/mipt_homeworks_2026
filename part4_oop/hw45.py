@@ -82,33 +82,36 @@ class LRUPolicy(AbstractPolicy[K]):
 
 @dataclass
 class LFUPolicy(AbstractPolicy[K]):
+    _pending_key: K | None = field(default=None, init=False)
 
     def register_access(self, key: K) -> None:
         if key in self._key_counter:
             self._key_counter[key] += 1
-
             return
-
+        if len(self._key_counter) >= self.capacity:
+            self._pending_key = key
+            return
         self._key_counter[key] = 1
 
     def get_key_to_evict(self) -> K | None:
-        if len(self._key_counter) > self.capacity:
+        if len(self._key_counter) >= self.capacity:
             min_key: K = min(self._key_counter.items(), key=lambda count: count[1])[0]
-
             return min_key
-
         return None
 
     def remove_key(self, key: K) -> None:
         self._key_counter.pop(key, None)
+        if self._pending_key is not None and len(self._key_counter) < self.capacity:
+            self._key_counter[self._pending_key] = 1
+            self._pending_key = None
 
     def clear(self) -> None:
         self._key_counter.clear()
+        self._pending_key = None
 
     @property
     def has_keys(self) -> bool:
         return len(self._key_counter) != 0
-
 
 class MIPTCache(Cache[K, V]):
     def __init__(self, storage: Storage[K, V], policy: Policy[K]) -> None:
