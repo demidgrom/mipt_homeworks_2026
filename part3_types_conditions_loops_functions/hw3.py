@@ -119,7 +119,7 @@ def is_valid_number(s: str) -> bool:
 def parse_amount(amount_str: str) -> float | None:
     if not is_valid_number(amount_str):
         return None
-    return float(amount_str)
+    return float(amount_str.replace(",", "."))
 
 
 def validate_category(category_str: str) -> tuple[str, str] | None:
