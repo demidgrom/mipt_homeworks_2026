@@ -339,10 +339,7 @@ def _handle_line(line: str) -> None:
 
 
 def _read_input() -> str | None:
-    try:
-        return input()
-    except EOFError:
-        return None
+    return input()
 
 
 def main() -> None:
