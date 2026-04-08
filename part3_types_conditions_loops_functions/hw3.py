@@ -111,7 +111,7 @@ def is_valid_number(s: str) -> bool:
             dot_count += 1
             if dot_count > 1:
                 return False
-        if not ch.isdigit():
+        elif not ch.isdigit():
             return False
     return True
 
