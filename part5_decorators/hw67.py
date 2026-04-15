@@ -26,7 +26,7 @@ class BreakerError(Exception):
 
     def __init__(self, func: CallableWithMeta[P, R_co], msg: str, original_exc: BaseException | None = None):
         self.func_name = func.__module__ + "." + func.__name__
-        self.block_time = datetime.now(timezone.utc)
+        self.block_time = datetime.now(timezone.UTC)
         self.msg_error = msg
         super().__init__(msg)
         if original_exc is not None:
