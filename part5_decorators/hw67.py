@@ -35,12 +35,12 @@ class BreakerError(Exception):
 
 
 class CircuitBreaker:
-    critical_count_: int
-    time_to_recover_: int
-    triggers_on_: type[Exception]
-    errors_count_: int = 0
-    status_: bool = True
-    opened_at_: float | None = None
+    critical_count: int
+    time_to_recover: int
+    triggers_on: type[Exception]
+    errors_count: int = 0
+    status: bool = True
+    opened_at: float | None = None
 
     def __init__(self, critical_count: int = 5, time_to_recover: int = 30, triggers_on: type[Exception] = Exception):
         errors: list[ValueError] = []
@@ -54,29 +54,29 @@ class CircuitBreaker:
         if errors:
             raise ExceptionGroup(VALIDATIONS_FAILED, errors)
 
-        self.critical_count_ = critical_count
-        self.time_to_recover_ = time_to_recover
-        self.triggers_on_ = triggers_on
+        self.critical_count = critical_count
+        self.time_to_recover = time_to_recover
+        self.triggers_on = triggers_on
 
     def __call__(self, func: CallableWithMeta[P, R_co]) -> CallableWithMeta[P, R_co]:
         def func_wrapper(*args: P.args, **kwargs: P.kwargs) -> Any:
             res: R_co
 
-            if self.status_ is False:
-                if self.opened_at_ is not None and (time() - self.opened_at_) < self.time_to_recover_:
+            if self.status is False:
+                if self.opened_at is not None and (time() - self.opened_at_) < self.time_to_recover:
                     raise BreakerError(func, TOO_MUCH)
 
-                self.status_ = True
-                self.errors_count_ = 0
+                self.status = True
+                self.errors_count = 0
 
             try:
                 res = func(*args, **kwargs)
-                self.errors_count_ = 0
-            except self.triggers_on_ as err:
-                self.errors_count_ += 1
-                if self.errors_count_ >= self.critical_count_:
-                    self.status_ = False
-                    self.opened_at_ = time()
+                self.errors_count = 0
+            except self.triggers_on as err:
+                self.errors_count += 1
+                if self.errors_count >= self.critical_count:
+                    self.status = False
+                    self.opened_at = time()
                     raise BreakerError(func, TOO_MUCH, err) from err
                 raise
             return res
