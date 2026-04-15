@@ -1,5 +1,6 @@
 import json
 from datetime import datetime, timedelta, timezone
+from functools import wraps
 from time import time
 from typing import Any, ParamSpec, Protocol, TypeVar
 from urllib.request import urlopen
@@ -65,6 +66,7 @@ class CircuitBreaker:
         self.opened_at: float | None = None
 
     def __call__(self, func: CallableWithMeta[P, R_co]) -> CallableWithMeta[P, R_co]:
+        @wraps(func)
         def func_wrapper(*args: P.args, **kwargs: P.kwargs) -> Any:
             self._handle_open_state(func)
             return self._execute_request(func, args, kwargs)
