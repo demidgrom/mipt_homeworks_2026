@@ -1,6 +1,6 @@
 import json
-import time
-from datetime import datetime, timezone
+from datetime import datetime, timedelta, timezone
+from time import time
 from typing import Any, ParamSpec, Protocol, TypeVar
 from urllib.request import urlopen
 
@@ -16,6 +16,7 @@ R_co = TypeVar("R_co", covariant=True)
 class CallableWithMeta(Protocol[P, R_co]):
     __name__: str
     __module__: str
+
     def __call__(self, *args: P.args, **kwargs: P.kwargs) -> R_co: ...
 
 
@@ -26,7 +27,7 @@ class BreakerError(Exception):
 
     def __init__(self, func: CallableWithMeta[P, R_co], msg: str, original_exc: BaseException | None = None):
         self.func_name = func.__module__ + "." + func.__name__
-        self.block_time = datetime.now(timezone.UTC)
+        self.block_time = datetime.now(timezone(timedelta(hours=0)))
         self.msg_error = msg
         super().__init__(msg)
         if original_exc is not None:
@@ -41,12 +42,7 @@ class CircuitBreaker:
     status_: bool = True
     opened_at_: float | None = None
 
-    def __init__(
-        self,
-        critical_count: int = 5,
-        time_to_recover: int = 30,
-        triggers_on: type[Exception] = Exception
-    ):
+    def __init__(self, critical_count: int = 5, time_to_recover: int = 30, triggers_on: type[Exception] = Exception):
         errors: list[ValueError] = []
 
         if not isinstance(critical_count, int) or critical_count <= 0:
@@ -67,7 +63,7 @@ class CircuitBreaker:
             res: R_co
 
             if self.status_ is False:
-                if self.opened_at_ is not None and (time.time() - self.opened_at_) < self.time_to_recover_:
+                if self.opened_at_ is not None and (time() - self.opened_at_) < self.time_to_recover_:
                     raise BreakerError(func, TOO_MUCH)
 
                 self.status_ = True
@@ -80,7 +76,7 @@ class CircuitBreaker:
                 self.errors_count_ += 1
                 if self.errors_count_ >= self.critical_count_:
                     self.status_ = False
-                    self.opened_at_ = time.time()
+                    self.opened_at_ = time()
                     raise BreakerError(func, TOO_MUCH, err) from err
                 raise
             return res
