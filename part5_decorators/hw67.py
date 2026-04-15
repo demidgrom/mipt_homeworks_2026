@@ -25,8 +25,13 @@ class BreakerError(Exception):
     block_time: datetime
     msg_error: str
 
-    def __init__(self, func: CallableWithMeta[P, R_co], msg: str, original_exc: BaseException | None = None):
-        self.func_name = func.__module__ + "." + func.__name__
+    def __init__(
+        self,
+        func: CallableWithMeta[P, R_co],
+        msg: str,
+        original_exc: BaseException | None = None,
+    ):
+        self.func_name = f"{func.__module__}.{func.__name__}"
         self.block_time = datetime.now(timezone(timedelta(hours=0)))
         self.msg_error = msg
         super().__init__(msg)
@@ -35,14 +40,12 @@ class BreakerError(Exception):
 
 
 class CircuitBreaker:
-    critical_count: int
-    time_to_recover: int
-    triggers_on: type[Exception]
-    errors_count: int = 0
-    status: bool = True
-    opened_at: float | None = None
-
-    def __init__(self, critical_count: int = 5, time_to_recover: int = 30, triggers_on: type[Exception] = Exception):
+    def __init__(
+        self,
+        critical_count: int = 5,
+        time_to_recover: int = 30,
+        triggers_on: type[Exception] = Exception,
+    ):
         errors: list[ValueError] = []
 
         if not isinstance(critical_count, int) or critical_count <= 0:
@@ -57,33 +60,44 @@ class CircuitBreaker:
         self.critical_count = critical_count
         self.time_to_recover = time_to_recover
         self.triggers_on = triggers_on
+        self.errors_count = 0
+        self.status = True
+        self.opened_at: float | None = None
 
     def __call__(self, func: CallableWithMeta[P, R_co]) -> CallableWithMeta[P, R_co]:
         def func_wrapper(*args: P.args, **kwargs: P.kwargs) -> Any:
-            res: R_co
-
-            if self.status is False:
-                if self.opened_at is not None and (time() - self.opened_at_) < self.time_to_recover:
-                    raise BreakerError(func, TOO_MUCH)
-
-                self.status = True
-                self.errors_count = 0
-
-            try:
-                res = func(*args, **kwargs)
-                self.errors_count = 0
-            except self.triggers_on as err:
-                self.errors_count += 1
-                if self.errors_count >= self.critical_count:
-                    self.status = False
-                    self.opened_at = time()
-                    raise BreakerError(func, TOO_MUCH, err) from err
-                raise
-            return res
+            self._handle_open_state(func)
+            return self._execute_request(func, args, kwargs)
 
         func_wrapper.__name__ = func.__name__
         func_wrapper.__module__ = func.__module__
         return func_wrapper
+
+    def _handle_open_state(self, func: CallableWithMeta[P, R_co]) -> None:
+        if not self.status:
+            if self.opened_at is not None and (time() - self.opened_at) < self.time_to_recover:
+                raise BreakerError(func, TOO_MUCH)
+            self.status = True
+            self.errors_count = 0
+
+    def _execute_request(
+        self,
+        func: CallableWithMeta[P, R_co],
+        args: tuple[Any, ...],
+        kwargs: dict[str, Any],
+    ) -> Any:
+        try:
+            result = func(*args, **kwargs)
+        except self.triggers_on as err:
+            self.errors_count += 1
+            if self.errors_count >= self.critical_count:
+                self.status = False
+                self.opened_at = time()
+                raise BreakerError(func, TOO_MUCH, err) from err
+            raise
+        else:
+            self.errors_count = 0
+            return result
 
 
 circuit_breaker = CircuitBreaker(5, 30, Exception)
@@ -91,11 +105,13 @@ circuit_breaker = CircuitBreaker(5, 30, Exception)
 
 def get_comments(post_id: int) -> Any:
     """
-    Получает комментарии к посту
+    Получает комментарии к посту.
+
     Args:
-        post_id (int): Идентификатор поста
+        post_id (int): Идентификатор поста.
+
     Returns:
-        list[dict[int | str]]: Список комментариев
+        list[dict[int | str]]: Список комментариев.
     """
     response = urlopen(f"https://jsonplaceholder.typicode.com/comments?postId={post_id}")
     return json.loads(response.read())
