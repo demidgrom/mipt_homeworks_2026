@@ -88,7 +88,7 @@ class LFUPolicy(AbstractPolicy[K]):
             self._key_counter.update({key: value})
             return
 
-        if len(self._key_counter) > self.capacity:
+        if len(self._key_counter) >= self.capacity:
             self._pending_key = key
             return
 
