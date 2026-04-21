@@ -71,8 +71,6 @@ class CircuitBreaker:
             self._handle_open_state(func)
             return self._execute_request(func, args, kwargs)
 
-        func_wrapper.__name__ = func.__name__
-        func_wrapper.__module__ = func.__module__
         return func_wrapper
 
     def _handle_open_state(self, func: CallableWithMeta[P, R_co]) -> None:
@@ -107,13 +105,13 @@ circuit_breaker = CircuitBreaker(5, 30, Exception)
 
 def get_comments(post_id: int) -> Any:
     """
-    Получает комментарии к посту.
+    Получает комментарии к посту
 
     Args:
-        post_id (int): Идентификатор поста.
+        post_id (int): Идентификатор поста
 
     Returns:
-        list[dict[int | str]]: Список комментариев.
+        list[dict[int | str]]: Список комментариев
     """
     response = urlopen(f"https://jsonplaceholder.typicode.com/comments?postId={post_id}")
     return json.loads(response.read())
