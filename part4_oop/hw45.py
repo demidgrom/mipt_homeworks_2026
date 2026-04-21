@@ -39,7 +39,7 @@ class AbstractPolicy(Policy[K]):
     _key_counter: dict[K, int] = field(default_factory=dict, init=False)
 
     def get_key_to_evict(self) -> K | None:
-        if len(self._order) >= self.capacity:
+        if len(self._order) > self.capacity:
             return self._order[0]
 
         return None
