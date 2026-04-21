@@ -98,7 +98,7 @@ class LFUPolicy(AbstractPolicy[K]):
         self._key_counter[key] = 1
 
     def get_key_to_evict(self) -> K | None:
-        if len(self._key_counter) > self.capacity or to_evict_current(self):
+        if len(self._key_counter) > self.capacity or self.to_evict_current():
             min_item = min(self._key_counter.items(), key=lambda item: item[1])
             min_key: K = min_item[0]
             return min_key
