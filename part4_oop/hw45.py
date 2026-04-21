@@ -88,14 +88,14 @@ class LFUPolicy(AbstractPolicy[K]):
             self._key_counter.update({key: value})
             return
 
-        if len(self._key_counter) > self.capacity:
+        if len(self._key_counter) >= self.capacity:
             self._pending_key = key
             return
 
         self._key_counter[key] = 1
 
     def get_key_to_evict(self) -> K | None:
-        if len(self._key_counter) > self.capacity:
+        if len(self._key_counter) >= self.capacity:
             min_item = min(self._key_counter.items(), key=lambda item: item[1])
             min_key: K = min_item[0]
             return min_key
@@ -122,19 +122,14 @@ class MIPTCache(Cache[K, V]):
         self.policy = policy
 
     def set(self, key: K, value: V) -> None:
-        if (self.exists(key)):
-            self.policy.register_access(key)
-            self.storage.set(key, value)
-            return
+        self.policy.register_access(key)
+        self.storage.set(key, value)
 
         free_data: K | None = self.policy.get_key_to_evict()
 
         if free_data is not None:
             self.storage.remove(free_data)
             self.policy.remove_key(free_data)
-
-        self.policy.register_access(key)
-        self.storage.set(key, value)
 
     def get(self, key: K) -> V | None:
         self.policy.register_access(key)
