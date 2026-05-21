@@ -1,0 +1,8 @@
+api_key: ollama
+api_host: http://localhost:11434/v1/
+model: gemma3:270m
+limit_messages: 20
+limit_chars: 4000
+temperature: 0.9
+system_prompt: You are test assistant.
+stream: true
