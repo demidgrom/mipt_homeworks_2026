@@ -1,0 +1,32 @@
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "gigavibemiptcode"
+version = "0.1.0"
+description = "Console LLM assistant starter project"
+requires-python = ">=3.11"
+dependencies = [
+    "openai>=1.0.0",
+    "PyYAML>=6.0",
+]
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.pytest.ini_options]
+pythonpath = ["src"]
+testpaths = ["tests"]
+addopts = "--cov=src/gigavibemiptcode --cov-report=term-missing --cov-report=html"
+
+[tool.mypy]
+python_version = "3.11"
+strict = true
+mypy_path = "src"
+warn_unused_ignores = true
+warn_return_any = true
+
+[[tool.mypy.overrides]]
+module = "yaml"
+ignore_missing_imports = true
