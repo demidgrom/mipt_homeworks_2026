@@ -1,1 +1,0 @@
-"""GigaVibeMiptCode starter package."""

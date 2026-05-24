@@ -1,5 +1,3 @@
-from __future__ import annotations
-
 import sys
 
 from gigavibemiptcode.attachments import AttachmentError, expand_attachments
