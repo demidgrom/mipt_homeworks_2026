@@ -58,7 +58,7 @@ def split_by_length(text: str, length: int) -> list[str]:
     if length <= 0:
         raise ChunkError('Len must be positive!')
 
-    return [text[index : index + length] for index in range(0, len(text), length)]
+    return [text[index: index + length] for index in range(0, len(text), length)]
 
 
 def split_by_paragraphs(text: str, paragraph_count: int) -> list[str]:
@@ -68,7 +68,7 @@ def split_by_paragraphs(text: str, paragraph_count: int) -> list[str]:
     paragraphs = [part.strip() for part in text.splitlines() if part.strip()]
 
     return [
-        '\n\n'.join(paragraphs[index : index + paragraph_count])
+        '\n\n'.join(paragraphs[index: index + paragraph_count])
         for index in range(0, len(paragraphs), paragraph_count)
     ]
 

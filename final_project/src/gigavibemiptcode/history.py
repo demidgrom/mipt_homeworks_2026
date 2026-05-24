@@ -47,7 +47,7 @@ class MessageHistory:
 
         if self._messages and self._total_chars() > self._limit_chars:
             last_message = self._messages[-1]
-            last_message['content'] = last_message['content'][-self._limit_chars :]
+            last_message['content'] = last_message['content'][-self._limit_chars:]
 
     def _total_chars(self) -> int:
         return sum(len(message['content']) for message in self._messages)
